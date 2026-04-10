@@ -1,0 +1,12 @@
+{
+  "name": "vridhihome-fullstack",
+  "version": "1.0.0",
+  "description": "Smart Property Enhancement Platform",
+  "scripts": {
+    "install-all": "cd backend && npm install && cd ../frontend && npm install",
+    "start": "concurrently \"cd backend && node server.js\" \"cd frontend && npm run dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
