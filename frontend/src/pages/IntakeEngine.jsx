@@ -5,12 +5,14 @@ import { Loader2 } from 'lucide-react';
 
 const IntakeEngine = () => {
   const navigate = useNavigate();
+  const role = localStorage.getItem('vridhi_role');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     propertyType: 'apartment',
     location: 'urban',
     budget: 'medium',
-    objective: 'resale'
+    objective: 'resale',
+    customerEmail: ''
   });
 
   const handleChange = (e) => {
@@ -19,22 +21,53 @@ const IntakeEngine = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (role === 'admin' && !formData.customerEmail) {
+      alert("Please enter the customer's email address.");
+      return;
+    }
+
     setLoading(true);
-    // Call our placeholder API
-    await submitIntakeForm(formData);
-    setLoading(false);
-    navigate('/dashboard');
+    try {
+      await submitIntakeForm(formData);
+      if (role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="container animate-fade-in" style={{ maxWidth: '700px' }}>
       <div className="card glass-panel">
-        <h2 style={{ textAlign: 'center', marginBottom: '0.5rem' }}>Property Profile</h2>
+        <h2 style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
+          {role === 'admin' ? 'Log Customer Property Data' : 'Property Profile'}
+        </h2>
         <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', marginBottom: '2rem' }}>
-          Tell us about your home to generate a personalized enhancement blueprint.
+          {role === 'admin' ? 'Manually input a customer requirement into the system.' : 'Tell us about your home to generate a personalized enhancement blueprint.'}
         </p>
 
         <form onSubmit={handleSubmit}>
+          {role === 'admin' && (
+            <div className="input-group">
+              <label className="form-label">Customer Email Address (Required)</label>
+              <input 
+                type="email" 
+                name="customerEmail" 
+                value={formData.customerEmail} 
+                onChange={handleChange} 
+                className="form-control" 
+                placeholder="e.g. user@domain.com"
+                required={role === 'admin'}
+                style={{ padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid var(--color-border)', width: '100%', marginBottom: '1rem' }}
+              />
+            </div>
+          )}
+
           <div className="input-group">
             <label className="form-label">What type of property do you own?</label>
             <select name="propertyType" value={formData.propertyType} onChange={handleChange} className="form-control">
@@ -80,7 +113,7 @@ const IntakeEngine = () => {
                   Analyzing Property DNA...
                 </>
               ) : (
-                'Generate Blueprint'
+                role === 'admin' ? 'Save Customer Profile' : 'Generate Blueprint'
               )}
             </button>
           </div>

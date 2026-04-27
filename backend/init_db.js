@@ -1,21 +1,36 @@
 require('dotenv').config();
 const db = require('./db');
+const bcrypt = require('bcrypt');
 
 const initDB = async () => {
   try {
     console.log('Connecting to PostgreSQL and running init script...');
     
-    // Create Users table
+  // Create Users table
     await db.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
         password TEXT NOT NULL,
+        role VARCHAR(50) DEFAULT 'customer',
         mfa_enabled BOOLEAN DEFAULT false,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    // Safely add role column if it was missing from a previous init
+    await db.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'customer';
+    `);
+
+    // Insert Default Admin
+    const adminPassword = await bcrypt.hash('admin123', 10);
+    await db.query(`
+      INSERT INTO users (name, email, password, role) 
+      VALUES ('System Admin', 'admin@vridhi.com', $1, 'admin')
+      ON CONFLICT (email) DO NOTHING
+    `, [adminPassword]);
 
     // Create Property Intakes table
     await db.query(`

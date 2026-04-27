@@ -34,7 +34,8 @@ const MFA = () => {
     setLoading(true);
     try {
       await verifyMFA(code.join(''));
-      navigate('/intake');
+      alert('Verification successful! Please sign in.');
+      navigate('/login');
     } catch (err) {
       console.error(err);
       alert('Verification failed');

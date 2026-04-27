@@ -15,9 +15,15 @@ export const registerUser = async (name, email, password) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, email, password })
   });
-  if (!response.ok) throw new Error('Registration failed');
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.error || 'Registration failed');
+  }
   const data = await response.json();
-  if (data.token) localStorage.setItem('vridhi_token', data.token);
+  if (data.token) {
+    localStorage.setItem('vridhi_token', data.token);
+    if (data.role) localStorage.setItem('vridhi_role', data.role);
+  }
   return data;
 };
 
@@ -27,9 +33,15 @@ export const loginUser = async (email, password) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
   });
-  if (!response.ok) throw new Error('Login failed');
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.error || 'Login failed');
+  }
   const data = await response.json();
-  if (data.token) localStorage.setItem('vridhi_token', data.token);
+  if (data.token) {
+    localStorage.setItem('vridhi_token', data.token);
+    if (data.role) localStorage.setItem('vridhi_role', data.role);
+  }
   return data;
 };
 
@@ -49,7 +61,10 @@ export const submitIntakeForm = async (formData) => {
     headers: getAuthHeaders(),
     body: JSON.stringify(formData)
   });
-  if (!response.ok) throw new Error('Intake submission failed');
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.error || 'Intake submission failed');
+  }
   return response.json();
 };
 
@@ -59,5 +74,17 @@ export const getRecommendations = async () => {
     headers: getAuthHeaders()
   });
   if (!response.ok) throw new Error('Failed to load recommendations');
+  return response.json();
+};
+
+export const getAdminRequirements = async () => {
+  const response = await fetch(`${BASE_URL}/admin/requirements`, {
+    method: 'GET',
+    headers: getAuthHeaders()
+  });
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.error || 'Failed to load user requirements');
+  }
   return response.json();
 };
