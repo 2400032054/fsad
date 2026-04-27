@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Moon, Sun } from 'lucide-react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home';
 import IntakeEngine from './pages/IntakeEngine';
@@ -14,6 +15,18 @@ const Navbar = () => {
   const role = localStorage.getItem('vridhi_role');
   const token = localStorage.getItem('vridhi_token');
 
+  // Theme state
+  const [theme, setTheme] = useState(localStorage.getItem('vridhi_theme') || 'light');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('vridhi_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('vridhi_token');
     localStorage.removeItem('vridhi_role');
@@ -21,7 +34,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav style={{ padding: '1rem 0', borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface)' }}>
+    <nav style={{ padding: '1rem 0', borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface)', transition: 'background-color var(--transition-normal), border-color var(--transition-normal)' }}>
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Link to="/" style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--color-primary)', textDecoration: 'none' }}>
           Vridhi<span style={{ color: 'var(--color-secondary)' }}>Home</span>
@@ -55,6 +68,18 @@ const Navbar = () => {
               </button>
             </>
           )}
+          
+          <button 
+            onClick={toggleTheme}
+            style={{ 
+              background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-main)', 
+              display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.5rem',
+              borderRadius: '50%', backgroundColor: 'var(--color-bg)', transition: 'all var(--transition-fast)'
+            }}
+            title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+          >
+            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+          </button>
         </div>
       </div>
     </nav>
@@ -64,7 +89,7 @@ const Navbar = () => {
 function App() {
   return (
     <BrowserRouter>
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--color-bg)', color: 'var(--color-text-main)', transition: 'background-color var(--transition-normal), color var(--transition-normal)' }}>
         <Navbar />
         <main style={{ flex: 1, padding: '2rem 0' }}>
           <Routes>

@@ -15,6 +15,28 @@ const IntakeEngine = () => {
     customerEmail: ''
   });
 
+  const loadingPhrases = [
+    "Analyzing Property DNA...",
+    "Scanning local real estate data...",
+    "Calculating optimal ROI upgrades...",
+    "Cross-referencing material costs...",
+    "Finalizing VridhiHome Blueprint..."
+  ];
+  const [loadingPhraseIdx, setLoadingPhraseIdx] = useState(0);
+
+  // Cycle through loading phrases
+  React.useEffect(() => {
+    let interval;
+    if (loading) {
+      interval = setInterval(() => {
+        setLoadingPhraseIdx((prev) => (prev + 1) % loadingPhrases.length);
+      }, 1500); // Change phrase every 1.5 seconds
+    } else {
+      setLoadingPhraseIdx(0);
+    }
+    return () => clearInterval(interval);
+  }, [loading]);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -110,7 +132,7 @@ const IntakeEngine = () => {
               {loading ? (
                 <>
                   <Loader2 className="animate-spin" size={20} />
-                  Analyzing Property DNA...
+                  {loadingPhrases[loadingPhraseIdx]}
                 </>
               ) : (
                 role === 'admin' ? 'Save Customer Profile' : 'Generate Blueprint'
